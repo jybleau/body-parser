@@ -218,6 +218,20 @@ describe('bodyParser.urlencoded()', function () {
           .expect(200, done)
       })
     })
+    
+    describe('when true with extendedOptions', function () {
+      before(function () {
+        this.server = createServer({ extended: true, extendedOptions: { parseArrays: false } })
+      })
+
+      it('should parse array index notation as an object', function (done) {
+        request(this.server)
+          .post('/')
+          .set('Content-Type', 'application/x-www-form-urlencoded')
+          .send('foo[0]=bar&foo[1]=baz')
+          .expect(200, '{"foo":{"0":"bar","1":"baz"}}', done)
+      })
+    })
   })
 
   describe('with inflate option', function () {

@@ -241,6 +241,11 @@ Defaults to `true`, but using the default has been deprecated. Please
 research into the difference between `qs` and `querystring` and choose the
 appropriate setting.
 
+##### extendedOptions
+
+Object containing options to pass to `qs`. Only used when the `extended` option is set to `true`.
+[see the qs library options](https://www.npmjs.org/package/qs#readme) for more details.
+
 ##### inflate
 
 When set to `true`, then deflated (compressed) bodies will be inflated; when

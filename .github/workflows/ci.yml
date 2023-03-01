@@ -31,6 +31,7 @@ jobs:
         - Node.js 16.x
         - Node.js 17.x
         - Node.js 18.x
+        - Node.js 19.x
 
         include:
         - name: Node.js 0.8
@@ -99,22 +100,25 @@ jobs:
           npm-i: mocha@9.2.2
 
         - name: Node.js 14.x
-          node-version: "14.20"
+          node-version: "14.21"
 
         - name: Node.js 15.x
           node-version: "15.14"
 
         - name: Node.js 16.x
-          node-version: "16.17"
+          node-version: "16.19"
 
         - name: Node.js 17.x
           node-version: "17.9"
 
         - name: Node.js 18.x
-          node-version: "18.10"
+          node-version: "18.14"
+
+        - name: Node.js 19.x
+          node-version: "19.7"
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Install Node.js ${{ matrix.node-version }}
       shell: bash -eo pipefail -l {0}
@@ -131,7 +135,12 @@ jobs:
         dirname "$(nvm which ${{ matrix.node-version }})" >> "$GITHUB_PATH"
 
     - name: Configure npm
-      run: npm config set shrinkwrap false
+      run: |
+        if [[ "$(npm config get package-lock)" == "true" ]]; then
+          npm config set package-lock false
+        else
+          npm config set shrinkwrap false
+        fi
 
     - name: Remove npm module(s) ${{ matrix.npm-rm }}
       run: npm rm --silent --save-dev ${{ matrix.npm-rm }}
@@ -163,7 +172,7 @@ jobs:
         echo "node@$(node -v)"
         echo "npm@$(npm -v)"
         npm -s ls ||:
-        (npm -s ls --depth=0 ||:) | awk -F'[ @]' 'NR>1 && $2 { print "::set-output name=" $2 "::" $3 }'
+        (npm -s ls --depth=0 ||:) | awk -F'[ @]' 'NR>1 && $2 { print $2 "=" $3 }' >> "$GITHUB_OUTPUT"
 
     - name: Run tests
       shell: bash
@@ -189,7 +198,7 @@ jobs:
         fi
 
     - name: Upload code coverage
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       if: steps.list_env.outputs.nyc != ''
       with:
         name: coverage
@@ -200,14 +209,14 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Install lcov
       shell: bash
       run: sudo apt-get -y install lcov
 
     - name: Collect coverage reports
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: coverage
         path: ./coverage

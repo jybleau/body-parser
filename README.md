@@ -300,6 +300,10 @@ form. Defaults to `false`.
 
 The `depth` option is used to configure the maximum depth of the `qs` library when `extended` is `true`. This allows you to limit the amount of keys that are parsed and can be useful to prevent certain types of abuse. Defaults to `32`. It is recommended to keep this value as low as possible.
 
+##### arrayLimit
+
+The `arrayLimit` option is used to controls the maximum index that `qs` library will parse when encountering array-like structures in a querystring when `extended` is `true`. The default value is the maximum between 100 and body's parameter count. When setting the value to `0`, the array will instead be converted to an object with the index as the key.
+
 ## Errors
 
 The middlewares provided by this module create errors using the

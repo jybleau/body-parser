@@ -284,6 +284,44 @@ describe('bodyParser.urlencoded()', function () {
     })
   })
 
+  describe('with arrayLimit option', function () {
+    describe('when arrayLimit is set to 0', function () {
+      before(function () {
+        this.server = createServer({ extended: true, arrayLimit: 0 })
+      })
+
+      it('should parse array as object with index as key', function (done) {
+        request(this.server)
+          .post('/')
+          .set('Content-Type', 'application/x-www-form-urlencoded')
+          .send('foo[0]=bar&foo[1]=baz')
+          .expect(200, '{"foo":{"0":"bar","1":"baz"}}', done)
+      })
+    })
+
+    describe('when arrayLimit is set to 2', function () {
+      before(function () {
+        this.server = createServer({ extended: true, arrayLimit: 2 })
+      })
+
+      it('should parse as an array when <= 3 items (index: 0,1,2)', function (done) {
+        request(this.server)
+          .post('/')
+          .set('Content-Type', 'application/x-www-form-urlencoded')
+          .send('foo[0]=bar&foo[1]=baz&foo[2]=qux')
+          .expect(200, '{"foo":["bar","baz","qux"]}', done)
+      })
+
+      it('should parse array as object with index as key when > 3 items', function (done) {
+        request(this.server)
+          .post('/')
+          .set('Content-Type', 'application/x-www-form-urlencoded')
+          .send('foo[0]=bar&foo[1]=baz&foo[2]=qux&foo[3]=quux')
+          .expect(200, '{"foo":{"0":"bar","1":"baz","2":"qux","3":"quux"}}', done)
+      })
+    })
+  })
+
   describe('with depth option', function () {
     describe('when custom value set', function () {
       it('should reject non positive numbers', function () {
